@@ -384,25 +384,12 @@ function weatherError() {
     "Weather unavailable";
 }
 
+
 function getWeather() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function(position) {
-        loadWeather(
-          position.coords.latitude,
-          position.coords.longitude,
-          "Your location"
-        );
-      },
-      function() {
-        loadWeather(28.6139, 77.2090, "Delhi");
-      },
-      { timeout: 10000 }
-    );
-  } else {
-    loadWeather(28.6139, 77.2090, "Delhi");
-  }
+  // Default location: Indirapuram, PIN 201014
+  loadWeather(28.6450, 77.3700, "Indirapuram, 201014");
 }
+
 
 updateClock();
 drawCalendar();
