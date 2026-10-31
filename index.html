@@ -331,13 +331,16 @@ function changeMonth(n) {
 function loadWeather(lat, lon, place) {
   var url =
     "https://api.open-meteo.com/v1/forecast?latitude=" +
-    lat + "&longitude=" + lon +
+    lat +
+    "&longitude=" +
+    lon +
     "&current=temperature_2m,weather_code" +
-    "&timezone=auto";
+    "&temperature_unit=celsius&timezone=auto";
 
   var xhr = new XMLHttpRequest();
 
   xhr.open("GET", url, true);
+  xhr.timeout = 15000;
 
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
@@ -354,17 +357,25 @@ function loadWeather(lat, lon, place) {
 
           document.getElementById("location").innerHTML =
             place;
+
         } catch(e) {
-          weatherError();
+          weatherError("Unable to read weather data");
         }
       } else {
-        weatherError();
+        weatherError("Server error: " + xhr.status);
       }
     }
   };
 
-  xhr.onerror = weatherError;
-  xhr.send();
+  xhr.onerror = function() {
+    weatherError("Connection failed");
+  };
+
+  xhr.ontimeout = function() {
+    weatherError("Weather request timed out");
+  };
+
+  xhr.send(null);
 }
 
 function weatherText(code) {
@@ -379,14 +390,12 @@ function weatherText(code) {
   return "Cloudy";
 }
 
-function weatherError() {
-  document.getElementById("condition").innerHTML =
-    "Weather unavailable";
+function weatherError(message) {
+  document.getElementById("condition").innerHTML = message;
 }
 
 
 function getWeather() {
-  // Default location: Indirapuram, PIN 201014
   loadWeather(28.6450, 77.3700, "Indirapuram, 201014");
 }
 
