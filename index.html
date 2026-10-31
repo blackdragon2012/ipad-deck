@@ -328,55 +328,43 @@ function changeMonth(n) {
   drawCalendar();
 }
 
+
 function loadWeather(lat, lon, place) {
-  var url =
-    "https://api.open-meteo.com/v1/forecast?latitude=" +
-    lat +
-    "&longitude=" +
-    lon +
-    "&current=temperature_2m,weather_code" +
-    "&temperature_unit=celsius&timezone=auto";
+  var url = "https://api.open-meteo.com/v1/forecast?latitude=" +
+    lat + "&longitude=" + lon +
+    "&current=temperature_2m,weather_code&timezone=auto";
 
-  var xhr = new XMLHttpRequest();
+  var request = new XMLHttpRequest();
 
-  xhr.open("GET", url, true);
-  xhr.timeout = 15000;
+  request.open("GET", url, true);
 
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        try {
-          var data = JSON.parse(xhr.responseText);
-          var current = data.current;
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 300) {
+      try {
+        var result = JSON.parse(request.responseText);
 
-          document.getElementById("temperature").innerHTML =
-            Math.round(current.temperature_2m) + "°";
+        document.getElementById("temperature").innerHTML =
+          Math.round(result.current.temperature_2m) + "°";
 
-          document.getElementById("condition").innerHTML =
-            weatherText(current.weather_code);
+        document.getElementById("condition").innerHTML =
+          weatherText(result.current.weather_code);
 
-          document.getElementById("location").innerHTML =
-            place;
-
-        } catch(e) {
-          weatherError("Unable to read weather data");
-        }
-      } else {
-        weatherError("Server error: " + xhr.status);
+        document.getElementById("location").innerHTML = place;
+      } catch(error) {
+        weatherError("Data reading error");
       }
+    } else {
+      weatherError("Weather server error");
     }
   };
 
-  xhr.onerror = function() {
-    weatherError("Connection failed");
+  request.onerror = function() {
+    weatherError("Browser blocked weather request");
   };
 
-  xhr.ontimeout = function() {
-    weatherError("Weather request timed out");
-  };
-
-  xhr.send(null);
+  request.send();
 }
+
 
 function weatherText(code) {
   if (code === 0) return "Clear sky";
