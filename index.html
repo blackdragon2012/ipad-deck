@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#000000">
+<title>Table Deck</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #000;
+  color: white;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.deck {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7%;
+  padding: 35px 6%;
+}
+
+.left {
+  flex: 1;
+  text-align: center;
+}
+
+.right {
+  flex: 1;
+  max-width: 470px;
+}
+
+.brand {
+  color: #a00000;
+  letter-spacing: 5px;
+  font-size: 12px;
+  margin-bottom: 35px;
+}
+
+.clock {
+  font-size: clamp(65px, 10vw, 112px);
+  font-weight: 200;
+  letter-spacing: -5px;
+  white-space: nowrap;
+  text-shadow: 0 0 20px rgba(255,0,0,.2);
+}
+
+.day {
+  color: #ff3030;
+  font-size: 27px;
+  margin-top: 12px;
+}
+
+.date {
+  color: #999;
+  font-size: 19px;
+  margin-top: 8px;
+}
+
+.weather {
+  margin: 35px auto 0;
+  padding: 20px;
+  background: #100606;
+  border: 1px solid #350909;
+  border-radius: 12px;
+  max-width: 310px;
+}
+
+.weather-temp {
+  font-size: 43px;
+  color: white;
+}
+
+.weather-desc {
+  color: #ff4545;
+  font-size: 15px;
+  margin-top: 5px;
+}
+
+.weather-location {
+  color: #888;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.calendar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.month {
+  font-size: 27px;
+  color: white;
+}
+
+button {
+  background: #130404;
+  color: #ff3030;
+  border: 1px solid #720000;
+  border-radius: 7px;
+  padding: 10px 17px;
+  font-size: 20px;
+  margin-left: 5px;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+th {
+  color: #ff3030;
+  font-weight: normal;
+  font-size: 13px;
+  padding: 13px 0;
+}
+
+td {
+  text-align: center;
+  height: 57px;
+  font-size: 19px;
+  color: #ccc;
+}
+
+td span {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+td.today span {
+  background: #e00000;
+  color: white;
+  box-shadow: 0 0 15px rgba(255,0,0,.55);
+}
+
+.footer {
+  color: #650000;
+  letter-spacing: 4px;
+  text-align: center;
+  font-size: 11px;
+  padding: 12px;
+}
+
+@media (max-width: 650px) {
+  .deck {
+    flex-direction: column;
+    padding: 25px 20px;
+    gap: 35px;
+  }
+
+  .right { width: 100%; }
+  .clock { font-size: 65px; }
+  td { height: 45px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="deck">
+
+  <section class="left">
+    <div class="brand">TABLE DECK</div>
+
+    <div class="clock" id="clock">00:00:00</div>
+    <div class="day" id="day">Monday</div>
+    <div class="date" id="date"></div>
+
+    <div class="weather">
+      <div class="weather-temp" id="temperature">--°</div>
+      <div class="weather-desc" id="condition">
+        Loading weather...
+      </div>
+      <div class="weather-location" id="location">
+        Finding location
+      </div>
+    </div>
+  </section>
+
+  <section class="right">
+    <div class="calendar-heading">
+      <div class="month" id="month"></div>
+      <div>
+        <button onclick="changeMonth(-1)">‹</button>
+        <button onclick="changeMonth(1)">›</button>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>MON</th>
+          <th>TUE</th>
+          <th>WED</th>
+          <th>THU</th>
+          <th>FRI</th>
+          <th>SAT</th>
+          <th>SUN</th>
+        </tr>
+      </thead>
+      <tbody id="calendar"></tbody>
+    </table>
+  </section>
+
+</div>
+
+<div class="footer">BLACKOUT RED EDITION</div>
+
+<script>
+var viewDate = new Date();
+
+function updateClock() {
+  var now = new Date();
+
+  function pad(n) {
+    return n < 10 ? "0" + n : n;
+  }
+
+  var days = [
+    "Sunday", "Monday", "Tuesday", "Wednesday",
+    "Thursday", "Friday", "Saturday"
+  ];
+
+  var months = [
+    "January", "February", "March", "April",
+    "May", "June", "July", "August",
+    "September", "October", "November", "December"
+  ];
+
+  document.getElementById("clock").innerHTML =
+    pad(now.getHours()) + ":" +
+    pad(now.getMinutes()) + ":" +
+    pad(now.getSeconds());
+
+  document.getElementById("day").innerHTML =
+    days[now.getDay()];
+
+  document.getElementById("date").innerHTML =
+    now.getDate() + " " +
+    months[now.getMonth()] + " " +
+    now.getFullYear();
+
+  if (now.getDate() !== lastDate) {
+    lastDate = now.getDate();
+    drawCalendar();
+  }
+}
+
+var lastDate = new Date().getDate();
+
+function drawCalendar() {
+  var y = viewDate.getFullYear();
+  var m = viewDate.getMonth();
+
+  var months = [
+    "January", "February", "March", "April",
+    "May", "June", "July", "August",
+    "September", "October", "November", "December"
+  ];
+
+  document.getElementById("month").innerHTML =
+    months[m] + " " + y;
+
+  var first = (new Date(y, m, 1).getDay() + 6) % 7;
+  var total = new Date(y, m + 1, 0).getDate();
+  var now = new Date();
+
+  var html = "";
+  var day = 1;
+
+  for (var r = 0; r < 6; r++) {
+    html += "<tr>";
+
+    for (var c = 0; c < 7; c++) {
+      if ((r === 0 && c < first) || day > total) {
+        html += "<td></td>";
+      } else {
+        var today = (
+          day === now.getDate() &&
+          m === now.getMonth() &&
+          y === now.getFullYear()
+        );
+
+        html += '<td class="' +
+          (today ? "today" : "") +
+          '"><span>' + day + "</span></td>";
+
+        day++;
+      }
+    }
+
+    html += "</tr>";
+    if (day > total) break;
+  }
+
+  document.getElementById("calendar").innerHTML = html;
+}
+
+function changeMonth(n) {
+  viewDate.setDate(1);
+  viewDate.setMonth(viewDate.getMonth() + n);
+  drawCalendar();
+}
+
+function loadWeather(lat, lon, place) {
+  var url =
+    "https://api.open-meteo.com/v1/forecast?latitude=" +
+    lat + "&longitude=" + lon +
+    "&current=temperature_2m,weather_code" +
+    "&timezone=auto";
+
+  var xhr = new XMLHttpRequest();
+
+  xhr.open("GET", url, true);
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        try {
+          var data = JSON.parse(xhr.responseText);
+          var current = data.current;
+
+          document.getElementById("temperature").innerHTML =
+            Math.round(current.temperature_2m) + "°";
+
+          document.getElementById("condition").innerHTML =
+            weatherText(current.weather_code);
+
+          document.getElementById("location").innerHTML =
+            place;
+        } catch(e) {
+          weatherError();
+        }
+      } else {
+        weatherError();
+      }
+    }
+  };
+
+  xhr.onerror = weatherError;
+  xhr.send();
+}
+
+function weatherText(code) {
+  if (code === 0) return "Clear sky";
+  if (code <= 3) return "Partly cloudy";
+  if (code <= 48) return "Foggy";
+  if (code <= 67) return "Rain";
+  if (code <= 77) return "Snow";
+  if (code <= 82) return "Rain showers";
+  if (code <= 86) return "Snow showers";
+  if (code >= 95) return "Thunderstorm";
+  return "Cloudy";
+}
+
+function weatherError() {
+  document.getElementById("condition").innerHTML =
+    "Weather unavailable";
+}
+
+function getWeather() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        loadWeather(
+          position.coords.latitude,
+          position.coords.longitude,
+          "Your location"
+        );
+      },
+      function() {
+        loadWeather(28.6139, 77.2090, "Delhi");
+      },
+      { timeout: 10000 }
+    );
+  } else {
+    loadWeather(28.6139, 77.2090, "Delhi");
+  }
+}
+
+updateClock();
+drawCalendar();
+getWeather();
+
+setInterval(updateClock, 1000);
+setInterval(getWeather, 900000);
+</script>
+
+</body>
+</html>
